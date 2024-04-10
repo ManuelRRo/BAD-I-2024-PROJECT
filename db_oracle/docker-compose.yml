@@ -1,0 +1,10 @@
+version: '3.8'
+services:
+  oracle-local:
+    image: container-registry.oracle.com/database/free:latest
+    container_name: oracle-local
+    ports:
+      - "1521:1521"
+    environment:
+      - ORACLE_PWD=Ora1234
+    restart: always
