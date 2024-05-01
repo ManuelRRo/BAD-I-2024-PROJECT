@@ -1,4 +1,4 @@
-package sistema.biblioteca.Entidad.ControlPrestamo;
+package sistema.biblioteca.Entidad;
 
 import jakarta.persistence.*;
 
@@ -6,13 +6,18 @@ import jakarta.persistence.*;
 public class Autor {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id_autor;
+    private Long id_autor;
 
     @Column(name = "nombre_autor",nullable = false)
     private String nombre_autor;
 
     public Autor(long id_autor, String nombre_autor) {
         this.id_autor = id_autor;
+        this.nombre_autor = nombre_autor;
+    }
+
+    public Autor(String nombre_autor) {
+      
         this.nombre_autor = nombre_autor;
     }
 

@@ -1,8 +1,8 @@
 package sistema.biblioteca.Servicio.IdiomaService;
 
-import sistema.biblioteca.Entidad.ControlPrestamo.Idioma;
-
 import java.util.List;
+
+import sistema.biblioteca.Entidad.Idioma;
 
 public interface IdiomaServicio {
     public List<Idioma> listarTodosLosIdiomas();

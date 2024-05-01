@@ -1,4 +1,4 @@
-package sistema.biblioteca.Entidad.ControlPrestamo;
+package sistema.biblioteca.Entidad;
 
 import jakarta.persistence.*;
 
@@ -6,7 +6,7 @@ import jakarta.persistence.*;
 public class Usuario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id_usuario;
+    private Long id_usuario;
     @Column(name = "nombre_usuario",nullable = false)
     private String nombre_usuario;
 

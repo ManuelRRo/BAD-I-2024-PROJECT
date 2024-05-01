@@ -1,4 +1,4 @@
-package sistema.biblioteca.Entidad.ControlPrestamo;
+package sistema.biblioteca.Entidad;
 
 import jakarta.persistence.*;
 import java.util.LinkedList;

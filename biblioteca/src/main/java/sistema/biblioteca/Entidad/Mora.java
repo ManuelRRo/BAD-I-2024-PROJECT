@@ -1,15 +1,12 @@
-package sistema.biblioteca.Entidad.ControlPrestamo;
-
+package sistema.biblioteca.Entidad;
 import jakarta.persistence.*;
-
-import java.util.List;
 import java.util.Set;
 
 @Entity
 public class Mora {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id_mora;
+    private Long id_mora;
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name="id_miembro")
     private Miembro miembro;
@@ -17,7 +14,7 @@ public class Mora {
 //    @ManyToMany(mappedBy = "moras")
 //    private List<BibliotecaMaterial> biblioteca_material;
 
-    @OneToMany(mappedBy = "mora")
+    @OneToMany(mappedBy = "mora",fetch = FetchType.EAGER )
     Set<Presta> presta;
 
     @Column(name = "mora_prestamo",nullable = false)

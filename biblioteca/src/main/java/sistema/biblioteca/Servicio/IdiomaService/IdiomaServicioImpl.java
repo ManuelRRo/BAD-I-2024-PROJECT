@@ -1,7 +1,8 @@
 package sistema.biblioteca.Servicio.IdiomaService;
 
 import org.springframework.stereotype.Service;
-import sistema.biblioteca.Entidad.ControlPrestamo.Idioma;
+
+import sistema.biblioteca.Entidad.Idioma;
 import sistema.biblioteca.Repositorio.IdiomaRepositorio;
 
 import java.util.List;

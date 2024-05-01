@@ -1,4 +1,4 @@
-package sistema.biblioteca.Entidad.ControlPrestamo;
+package sistema.biblioteca.Entidad;
 
 import jakarta.persistence.*;
 
@@ -6,7 +6,7 @@ import jakarta.persistence.*;
 public class Idioma {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id_idioma;
+    private Long id_idioma;
 
     @Column(name = "nombre_idioma",nullable = false)
     private String nombre_idioma;
@@ -18,6 +18,14 @@ public class Idioma {
 
     public Idioma() {
     }
+
+    public Idioma(String nombre_idioma) {
+        
+        this.nombre_idioma = nombre_idioma;
+    }
+
+
+
 
     public long getId_idioma() {
         return id_idioma;
