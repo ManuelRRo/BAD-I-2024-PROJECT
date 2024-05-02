@@ -30,6 +30,7 @@ public class BiblioMaterialServicioImpl implements BiblioMaterialServicio {
     public BibliotecaMaterial econtrarPorId(Long id) {
         logger.info("Buscando material con ID: {}", id);
         BibliotecaMaterial material = repo.findById(id).orElse(null);
+        
         if (material == null) {
             logger.warn("No se encontró ningún material con ID: {}", id);
         } else {

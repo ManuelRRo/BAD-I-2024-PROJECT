@@ -1,10 +1,14 @@
 package sistema.biblioteca.Vistas.ListPrestamo;
 
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Image;
+import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 //import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.router.PageTitle;
@@ -33,16 +37,16 @@ public class ListarPrestamos extends VerticalLayout {
     public BiblioMaterialServicio BMservicio;
 
     public  ListarPrestamos (BiblioMaterialServicio BMservicio){
+        
         this.BMservicio = BMservicio;
-        HorizontalLayout cardLayout = new HorizontalLayout(
-        crearCarta("Red Dragon","Inglés","Thomas Harris","Amazing Thriller"),
-        crearCarta("Blue Dragon","Inglés","Thomas Harris","Amazing Thriller")
-        );
+
         configurarGrid();
 
+        HorizontalLayout l2 = new HorizontalLayout(cargarListaDeLibros(BMservicio),gridBibliotecaMaterial);
+
         //Div content = new Div(gridBibliotecaMaterial);
-        add(gridBibliotecaMaterial,cardLayout);
-        updateList();
+        add(l2);
+        actualizarListaDePrestamos();
     }
 
     public VerticalLayout crearCarta(
@@ -56,8 +60,8 @@ public class ListarPrestamos extends VerticalLayout {
         H2 titulo = new H2 (titulo_carta);
         //img
         Image img_book = new Image("img/red_dragon.jpg","Red Dragon");
-        img_book.setWidth("200px");
-        img_book.setHeight("300px");
+        img_book.setWidth("100px");
+        img_book.setHeight("150px");
         //Idioma
         H4 idioma = new H4("Idioma: "+idioma_carta);
         //Autor
@@ -73,12 +77,7 @@ public class ListarPrestamos extends VerticalLayout {
             descripcion);
         
             cardLayout.addClickListener(event -> {
-                // //Podemos usar como notificacion despues de guardar algo
-                // Notification notification = Notification
-                // .show(titulo_carta);
-
-                //NOTA agregar aqui pasar todos los datos de la carta
-                //a otra clase para que los agregue a la otra tabla
+                BMservicio.econtrarPorId(1L);
             });
 
         return  cardLayout;
@@ -129,12 +128,89 @@ public class ListarPrestamos extends VerticalLayout {
         // }).setHeader("Grado");
 
         gridBibliotecaMaterial.getColumns().forEach(col -> col.setAutoWidth(true));
+        gridBibliotecaMaterial.setWidth("700px");
 
         //gridBibliotecaMaterial.asSingleSelect().addValueChangeListener(event -> editEstudiante(event.getValue()));
     }
 
-    private void updateList() {
+    private void actualizarListaDePrestamos() {
         //Aqui iba el filterText get value
-        gridBibliotecaMaterial.setItems(BMservicio.ListarTodo());
+        gridBibliotecaMaterial.setItems(BMservicio.econtrarPorId(1L));
+        System.out.println("Contenido del grid" + gridBibliotecaMaterial);
     }
+
+    public Scroller cargarListaDeLibros (BiblioMaterialServicio servicio){
+
+        List<BibliotecaMaterial> listaDeMaterialesBiblioteca= servicio.ListarTodo();
+
+        BibliotecaMaterial bm ;
+
+        int maxItems = 7;
+
+        int count = 0;
+        FlexLayout cardLayout = new FlexLayout() ;
+        /////////////////////////////////////////
+        Div divLayout = new Div();
+        /////////////////////////////////////////
+        H1 msg = new H1("No hay libros");
+
+        if (listaDeMaterialesBiblioteca.size() == 0) {
+            divLayout.add(msg);
+            Scroller scro = new Scroller(divLayout);
+            return scro;
+        }
+
+        while(count != maxItems && count < listaDeMaterialesBiblioteca.size()){
+            bm = new BibliotecaMaterial();
+            if(listaDeMaterialesBiblioteca.size() != 0){
+                bm=listaDeMaterialesBiblioteca.get(count);
+                divLayout.add(crearCarta(bm.getTitulo(), bm.getIdioma().getNombre_idioma(), bm.getAutor().getNombre_autor(), bm.getDescripcion()));
+                System.out.println(listaDeMaterialesBiblioteca.size());
+                count++;
+            }else{
+                count = 5;
+            }
+        }
+        Scroller scroller = new Scroller(
+        divLayout);
+        scroller.setWidth("500px");
+        scroller.setHeight("300px");
+        scroller.setScrollDirection(Scroller.ScrollDirection.VERTICAL);
+        scroller.getStyle()
+        .set("border-bottom", "1px solid var(--lumo-contrast-20pct)")
+        .set("padding", "var(--lumo-space-m)");
+        return scroller;      
+
+    }
+
+    // public HorizontalLayout cargarListaDeLibros (BiblioMaterialServicio servicio){
+
+    //     List<BibliotecaMaterial> listaDeMaterialesBiblioteca= servicio.ListarTodo();
+
+    //     BibliotecaMaterial bm ;
+
+    //     int maxItems = 7;
+
+    //     int count = 0;
+    //     HorizontalLayout cardLayout = new HorizontalLayout() ;
+    //     H1 msg = new H1("No hay libros");
+
+    //     if (listaDeMaterialesBiblioteca.size() == 0) {
+    //         cardLayout.add(msg);
+    //         return cardLayout;
+    //     }
+
+    //     while(count != maxItems && count < listaDeMaterialesBiblioteca.size()){
+    //         bm = new BibliotecaMaterial();
+    //         if(listaDeMaterialesBiblioteca.size() != 0){
+    //             bm=listaDeMaterialesBiblioteca.get(count);
+    //             cardLayout.add(crearCarta(bm.getTitulo(), bm.getIdioma().getNombre_idioma(), bm.getAutor().getNombre_autor(), bm.getDescripcion()));
+    //             System.out.println(listaDeMaterialesBiblioteca.size());
+    //             count++;
+    //         }else{
+    //             count = 5;
+    //         }
+    //     }
+    //     return cardLayout;      
+    // }
 }
