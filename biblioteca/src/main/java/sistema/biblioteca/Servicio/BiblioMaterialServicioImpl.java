@@ -27,6 +27,15 @@ public class BiblioMaterialServicioImpl implements BiblioMaterialServicio {
     }
 
     @Override
+    public List<BibliotecaMaterial> ListarTodo(String stringFilter) {
+        if(stringFilter == null || stringFilter.isEmpty()){
+            return repo.findAll();
+        }else {
+            return repo.BuscarMaterial(stringFilter);
+        }
+    }
+
+    @Override
     public BibliotecaMaterial econtrarPorId(Long id) {
         logger.info("Buscando material con ID: {}", id);
         BibliotecaMaterial material = repo.findById(id).orElse(null);

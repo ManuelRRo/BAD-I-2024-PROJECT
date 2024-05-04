@@ -1,22 +1,25 @@
 package sistema.biblioteca.Vistas.ListPrestamo;
-
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.H4;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.orderedlayout.FlexLayout;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.value.ValueChangeMode;
 //import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import sistema.biblioteca.Vistas.MainLayout;
 import sistema.biblioteca.Entidad.Autor;
@@ -30,8 +33,12 @@ import sistema.biblioteca.Servicio.BiblioMaterialServicio;
 public class ListarPrestamos extends VerticalLayout {
 
     //grid declaration
-    private
-    Grid<BibliotecaMaterial> gridBibliotecaMaterial = new Grid<>(BibliotecaMaterial.class);
+    private Grid<BibliotecaMaterial> gridBibliotecaMaterial = new Grid<>(BibliotecaMaterial.class);
+    private TextField filterText = new TextField();
+    private VerticalLayout divLayout = new VerticalLayout();
+    private Scroller scroller = new Scroller();
+    private List<BibliotecaMaterial> listaMaterialAPrestar = new ArrayList<>();
+
     //
     @Autowired
     public BiblioMaterialServicio BMservicio;
@@ -45,17 +52,18 @@ public class ListarPrestamos extends VerticalLayout {
         HorizontalLayout l2 = new HorizontalLayout(cargarListaDeLibros(BMservicio),gridBibliotecaMaterial);
 
         //Div content = new Div(gridBibliotecaMaterial);
-        add(l2);
-        actualizarListaDePrestamos();
+        add(BarraDeBusqueda(),l2);
+        
     }
 
     public VerticalLayout crearCarta(
         String titulo_carta,
         String idioma_carta,
         String autor_carta,
-        String descripcion_carta
+        String descripcion_carta,
+        Long id_material
         ){
-        VerticalLayout cardLayout = new VerticalLayout();
+        VerticalLayout card = new VerticalLayout();
         //h2 titulo
         H2 titulo = new H2 (titulo_carta);
         //img
@@ -69,18 +77,19 @@ public class ListarPrestamos extends VerticalLayout {
         //Descripcion
         H4 descripcion = new H4("Descripcion: "+descripcion_carta);
 
-        cardLayout.add(
+        card.add(
             titulo,
             img_book,
             idioma,
             autor,
             descripcion);
         
-            cardLayout.addClickListener(event -> {
-                BMservicio.econtrarPorId(1L);
+            card.addClickListener(event -> {
+                actualizarListaDePrestamos(id_material);
             });
 
-        return  cardLayout;
+            card.addClassName("card-item");
+        return  card;
     }
 
     private void configurarGrid(){
@@ -129,14 +138,16 @@ public class ListarPrestamos extends VerticalLayout {
 
         gridBibliotecaMaterial.getColumns().forEach(col -> col.setAutoWidth(true));
         gridBibliotecaMaterial.setWidth("700px");
+        gridBibliotecaMaterial.addThemeVariants(GridVariant.LUMO_WRAP_CELL_CONTENT);
 
         //gridBibliotecaMaterial.asSingleSelect().addValueChangeListener(event -> editEstudiante(event.getValue()));
     }
 
-    private void actualizarListaDePrestamos() {
+    private void actualizarListaDePrestamos(Long id_material) {
         //Aqui iba el filterText get value
-        gridBibliotecaMaterial.setItems(BMservicio.econtrarPorId(1L));
-        System.out.println("Contenido del grid" + gridBibliotecaMaterial);
+        //Agregar Item seleccionado en el listado
+        listaMaterialAPrestar.add(BMservicio.econtrarPorId(id_material));
+        gridBibliotecaMaterial.setItems(listaMaterialAPrestar);
     }
 
     public Scroller cargarListaDeLibros (BiblioMaterialServicio servicio){
@@ -149,8 +160,9 @@ public class ListarPrestamos extends VerticalLayout {
 
         int count = 0;
         FlexLayout cardLayout = new FlexLayout() ;
+
         /////////////////////////////////////////
-        Div divLayout = new Div();
+        
         /////////////////////////////////////////
         H1 msg = new H1("No hay libros");
 
@@ -161,18 +173,27 @@ public class ListarPrestamos extends VerticalLayout {
         }
 
         while(count != maxItems && count < listaDeMaterialesBiblioteca.size()){
+
             bm = new BibliotecaMaterial();
+
             if(listaDeMaterialesBiblioteca.size() != 0){
+
                 bm=listaDeMaterialesBiblioteca.get(count);
-                divLayout.add(crearCarta(bm.getTitulo(), bm.getIdioma().getNombre_idioma(), bm.getAutor().getNombre_autor(), bm.getDescripcion()));
+
+                divLayout.add(crearCarta(bm.getTitulo(), bm.getIdioma().getNombre_idioma(),
+                bm.getAutor().getNombre_autor(), bm.getDescripcion(),bm.getId_material_biblioteca()));
+
                 System.out.println(listaDeMaterialesBiblioteca.size());
+
                 count++;
+
             }else{
                 count = 5;
             }
         }
-        Scroller scroller = new Scroller(
-        divLayout);
+        
+        //Hacer este scroller global
+        scroller.setContent(divLayout);
         scroller.setWidth("500px");
         scroller.setHeight("300px");
         scroller.setScrollDirection(Scroller.ScrollDirection.VERTICAL);
@@ -183,34 +204,79 @@ public class ListarPrestamos extends VerticalLayout {
 
     }
 
-    // public HorizontalLayout cargarListaDeLibros (BiblioMaterialServicio servicio){
+    public HorizontalLayout BarraDeBusqueda(){
+        H3 lblBuscar = new H3("Buscar");
+        filterText.setPlaceholder("Filtrar por nombre...");
+        filterText.setClearButtonVisible(true);
+        filterText.setValueChangeMode(ValueChangeMode.LAZY);
 
-    //     List<BibliotecaMaterial> listaDeMaterialesBiblioteca= servicio.ListarTodo();
+        // invocar el updateList(); cada vez que l caja de texto cambie de estado
+        filterText.addValueChangeListener(
+            //e -> actualizarListaDePrestamos()
+            e-> actualizarListadoLibros(0,5,filterText.getValue())
+            );
 
-    //     BibliotecaMaterial bm ;
+        // Button addContactButton = new Button("Add contact");
+        // addContactButton.addClickListener(click -> addEstudiante());
 
-    //     int maxItems = 7;
+        //HorizontalLayout toolbar = new HorizontalLayout(filterText, addContactButton);
+        
+        HorizontalLayout barraDeBusqueda = new HorizontalLayout(
+            lblBuscar,filterText
+        );
+        return barraDeBusqueda;
+    }
+    
+    private void actualizarListadoLibros(int count,int maxItems,String filterValue){
+        List<BibliotecaMaterial> listaDeMaterialesBiblioteca = BMservicio.ListarTodo(filterValue);
+        BibliotecaMaterial bm;
+        //Eliminar los que se ven
+        List<Component> componentList = divLayout.getChildren().collect(Collectors.toList());
+                String nombreClase = "card-item";
+                
+                for (Component component : componentList) {
+                    
+                    if (component.getClassName().equals(nombreClase)) {
+                        // Eliminar el componente del Div
+                        divLayout.remove(component);
+                    }
+                }
+        while(count != maxItems && count < listaDeMaterialesBiblioteca.size()){
 
-    //     int count = 0;
-    //     HorizontalLayout cardLayout = new HorizontalLayout() ;
-    //     H1 msg = new H1("No hay libros");
+            bm = new BibliotecaMaterial();
 
-    //     if (listaDeMaterialesBiblioteca.size() == 0) {
-    //         cardLayout.add(msg);
-    //         return cardLayout;
+            if(listaDeMaterialesBiblioteca.size() != 0){
+
+                bm=listaDeMaterialesBiblioteca.get(count);
+
+                divLayout.add(crearCarta(bm.getTitulo(), bm.getIdioma().getNombre_idioma(), bm.getAutor().getNombre_autor(), bm.getDescripcion(),bm.getId_material_biblioteca()));
+
+                System.out.println(listaDeMaterialesBiblioteca.size());
+
+                count++;
+
+            }else{
+                count = 5;
+            }
+        }
+        //Crear nuevo con la nueva query
+    }
+
+    //TODO
+    //1.Crear una nueva funcion actualizarListadoLibros
+    //2.pegar el codigo para borrar las cartas
+    //3.hacer una nueva funcion que genere el layout con todas las cartas recibiendo una lista
+    //como parametro
+    //4.voy a agregar el elemento al scroller
+    // //Logica para borrar cartas
+    // List<Component> componentList = divLayout.getChildren().collect(Collectors.toList());
+    // String nombreClase = "card-item";
+    
+    // for (Component component : componentList) {
+        
+    //     if (component.getClassName().equals(nombreClase)) {
+    //         // Eliminar el componente del Div
+    //         divLayout.remove(component);
     //     }
-
-    //     while(count != maxItems && count < listaDeMaterialesBiblioteca.size()){
-    //         bm = new BibliotecaMaterial();
-    //         if(listaDeMaterialesBiblioteca.size() != 0){
-    //             bm=listaDeMaterialesBiblioteca.get(count);
-    //             cardLayout.add(crearCarta(bm.getTitulo(), bm.getIdioma().getNombre_idioma(), bm.getAutor().getNombre_autor(), bm.getDescripcion()));
-    //             System.out.println(listaDeMaterialesBiblioteca.size());
-    //             count++;
-    //         }else{
-    //             count = 5;
-    //         }
-    //     }
-    //     return cardLayout;      
     // }
 }
