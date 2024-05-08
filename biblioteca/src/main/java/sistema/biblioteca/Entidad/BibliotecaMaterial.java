@@ -1,6 +1,7 @@
 package sistema.biblioteca.Entidad;
 import jakarta.persistence.*;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 //No olvidar poner el tipo de fetch para evitar problemas al cargar cosas
@@ -10,12 +11,17 @@ public class BibliotecaMaterial {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id_material_biblioteca;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_idioma",nullable = true)
     private Idioma idioma;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_autor",nullable = true)
     private Autor autor;
+
+    @ManyToMany(mappedBy = "lista_material_biblioteca")
+    private Set<Miembro> miembro = new HashSet<>();
 
 //    @ManyToMany
 //    @JoinTable(

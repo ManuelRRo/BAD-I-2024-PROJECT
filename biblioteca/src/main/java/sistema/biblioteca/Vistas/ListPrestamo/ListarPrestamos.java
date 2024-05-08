@@ -1,7 +1,9 @@
 package sistema.biblioteca.Vistas.ListPrestamo;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
@@ -38,6 +40,8 @@ public class ListarPrestamos extends VerticalLayout {
     private VerticalLayout divLayout = new VerticalLayout();
     private Scroller scroller = new Scroller();
     private List<BibliotecaMaterial> listaMaterialAPrestar = new ArrayList<>();
+    private Button btnGuardar = new Button("Guardar");
+    private Button btnCancelar = new Button("Cancelar");
 
     //
     @Autowired
@@ -48,8 +52,12 @@ public class ListarPrestamos extends VerticalLayout {
         this.BMservicio = BMservicio;
 
         configurarGrid();
+        VerticalLayout gestionPrestamosContainer = new VerticalLayout();
+        HorizontalLayout botonesPrestamosContainer = new HorizontalLayout();
+        botonesPrestamosContainer.add(btnGuardar,btnCancelar);
 
-        HorizontalLayout l2 = new HorizontalLayout(cargarListaDeLibros(BMservicio),gridBibliotecaMaterial);
+        gestionPrestamosContainer.add(gridBibliotecaMaterial,botonesPrestamosContainer);
+        HorizontalLayout l2 = new HorizontalLayout(cargarListaDeLibros(BMservicio),gestionPrestamosContainer);
 
         //Div content = new Div(gridBibliotecaMaterial);
         add(BarraDeBusqueda(),l2);

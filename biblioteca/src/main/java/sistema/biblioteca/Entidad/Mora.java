@@ -8,7 +8,7 @@ public class Mora {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id_mora;
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name="id_miembro")
+    @JoinColumn(name="carnet_miembro")
     private Miembro miembro;
 
 //    @ManyToMany(mappedBy = "moras")
@@ -22,6 +22,8 @@ public class Mora {
 
     @Column(name = "costo_prestamo",nullable = false)
     private float costo_prestamo;
+
+
 
 
 

@@ -9,6 +9,8 @@ import sistema.biblioteca.Entidad.Idioma;
 import sistema.biblioteca.Repositorio.AutorRepositorio;
 import sistema.biblioteca.Repositorio.BibliotecaMaterialRepositorio;
 import sistema.biblioteca.Repositorio.IdiomaRepositorio;
+import sistema.biblioteca.Repositorio.PrestaRepositorio;
+import org.springframework.transaction.annotation.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -26,6 +28,13 @@ public class BibliotecaApplication implements CommandLineRunner{
 	AutorRepositorio autorRepositorio ;
 	@Autowired	
 	BibliotecaMaterialRepositorio bmRepositorio ;
+	@Autowired
+    private PrestaRepositorio prestamoRepository;
+
+	@Transactional
+    public void registrarPrestamos() {
+        prestamoRepository.registrarPrestamos("DD23001", 4L); // Llama al procedimiento con el carnet 'DD23001' y el id_material_nuevo 2
+    }
 
 	@Override
 	public void run(String... args) throws Exception {
@@ -36,6 +45,7 @@ public class BibliotecaApplication implements CommandLineRunner{
 		// autorRepositorio.save(autor1);
 		// BibliotecaMaterial bm1 = new BibliotecaMaterial(idiom1,autor1,"Movie 1","The best movie",3);
 		// bmRepositorio.save(bm1);
+		//registrarPrestamos();
 	}
     
 
