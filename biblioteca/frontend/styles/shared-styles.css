@@ -27,3 +27,7 @@ padding: 0 var(--lumo-space-m);
 font-size: 1em;
 margin: var(--lumo-space-m);
 }
+
+.border{
+margin: 3px;
+}

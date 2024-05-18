@@ -28,4 +28,45 @@ public class Miembro {
     @Column(name = "penalizado",nullable = false)
     private boolean penalizado;
 
+    public Miembro() {
+    }
+
+    public Miembro(Usuario usuario, List<Mora> moras, Set<BibliotecaMaterial> lista_material_biblioteca, boolean penalizado) {
+        this.usuario = usuario;
+        this.moras = moras;
+        this.lista_material_biblioteca = lista_material_biblioteca;
+        this.penalizado = penalizado;
+    }
+
+    public Usuario getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(Usuario usuario) {
+        this.usuario = usuario;
+    }
+
+    public List<Mora> getMoras() {
+        return moras;
+    }
+
+    public void setMoras(List<Mora> moras) {
+        this.moras = moras;
+    }
+
+    public Set<BibliotecaMaterial> getLista_material_biblioteca() {
+        return lista_material_biblioteca;
+    }
+
+    public void setLista_material_biblioteca(Set<BibliotecaMaterial> lista_material_biblioteca) {
+        this.lista_material_biblioteca = lista_material_biblioteca;
+    }
+
+    public boolean isPenalizado() {
+        return penalizado;
+    }
+
+    public void setPenalizado(boolean penalizado) {
+        this.penalizado = penalizado;
+    }
 }

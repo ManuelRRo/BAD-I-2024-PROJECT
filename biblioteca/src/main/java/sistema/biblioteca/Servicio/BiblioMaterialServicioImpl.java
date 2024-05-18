@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import sistema.biblioteca.Entidad.BibliotecaMaterial;
 import sistema.biblioteca.Repositorio.BibliotecaMaterialRepositorio;
+import sistema.biblioteca.Repositorio.MaterialRepositorio.MateriaBibliotecaRepoJdbc;
 
 
 import java.util.List;
@@ -18,12 +19,21 @@ public class BiblioMaterialServicioImpl implements BiblioMaterialServicio {
     @Autowired
     private BibliotecaMaterialRepositorio repo;
 
+    @Autowired
+    private MateriaBibliotecaRepoJdbc repoJdbc;
+
     @Override
     public List<BibliotecaMaterial> ListarTodo() {
         logger.info("Iniciando ListarTodo()");
         List<BibliotecaMaterial> materiales = repo.findAll();
         logger.info("ListarTodo() devolvió {} materiales", materiales.size());
         return materiales;
+    }
+
+    @Override
+    public List<BibliotecaMaterial> ListarPorAutor(String nombreAutor) {
+        List<BibliotecaMaterial> materialLista = repoJdbc.getLibrosPorAutor(nombreAutor);
+        return materialLista;
     }
 
     @Override

@@ -1,1 +1,0 @@
-# BAD-I-2024-PROJECT

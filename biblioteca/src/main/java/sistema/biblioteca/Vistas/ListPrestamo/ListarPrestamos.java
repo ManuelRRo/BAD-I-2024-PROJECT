@@ -15,14 +15,21 @@ import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
-//import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import sistema.biblioteca.Servicio.Miembro.MiembroServicio;
+import sistema.biblioteca.Servicio.PrestaServicio.PrestaServicio;
 import sistema.biblioteca.Vistas.MainLayout;
 import sistema.biblioteca.Entidad.Autor;
 import sistema.biblioteca.Entidad.BibliotecaMaterial;
@@ -30,8 +37,11 @@ import sistema.biblioteca.Entidad.Idioma;
 import sistema.biblioteca.Entidad.Presta;
 import sistema.biblioteca.Servicio.BiblioMaterialServicio;
 
-@Route(value="",layout = MainLayout.class)
+
+
+@Route(value="/prestamo",layout = MainLayout.class)
 @PageTitle("Lista Prestamos")
+@RolesAllowed("bibliotecario")
 public class ListarPrestamos extends VerticalLayout {
 
     //grid declaration
@@ -43,13 +53,16 @@ public class ListarPrestamos extends VerticalLayout {
     private Button btnGuardar = new Button("Guardar");
     private Button btnCancelar = new Button("Cancelar");
 
-    //
     @Autowired
     public BiblioMaterialServicio BMservicio;
+    @Autowired
+    private PrestaServicio prestaServicio;
 
-    public  ListarPrestamos (BiblioMaterialServicio BMservicio){
-        
+    public  ListarPrestamos (BiblioMaterialServicio BMservicio,PrestaServicio prestaServicio){
+
         this.BMservicio = BMservicio;
+        this.prestaServicio = prestaServicio;
+        GuardarPrestamo();
 
         configurarGrid();
         VerticalLayout gestionPrestamosContainer = new VerticalLayout();
@@ -58,7 +71,7 @@ public class ListarPrestamos extends VerticalLayout {
 
         gestionPrestamosContainer.add(gridBibliotecaMaterial,botonesPrestamosContainer);
         HorizontalLayout l2 = new HorizontalLayout(cargarListaDeLibros(BMservicio),gestionPrestamosContainer);
-
+        l2.setWidthFull();
         //Div content = new Div(gridBibliotecaMaterial);
         add(BarraDeBusqueda(),l2);
         
@@ -101,7 +114,7 @@ public class ListarPrestamos extends VerticalLayout {
     }
 
     private void configurarGrid(){
-        gridBibliotecaMaterial.addClassName("grid-estudiante");
+        gridBibliotecaMaterial.addClassName("border");
         //gridBibliotecaMaterial.setSizeFull();
 
         // Remover columna que comparte
@@ -120,35 +133,24 @@ public class ListarPrestamos extends VerticalLayout {
             return idioma == null ? "-" : idioma.getNombre_idioma();
         }).setHeader("Idioma");
 
-        gridBibliotecaMaterial.addColumn(material -> {
-            List<Presta> presta = material.getPresta();
-            ///////////////////////////////////////
-            String str = "";
-            for (Presta valor : presta) {
-                System.out.println(valor.getFecha_prestamo());
-                str = valor.getFecha_prestamo().toString() + " ,";
-                }
-            ////////////////////////////////////////
-            return presta == null ? "-" : str ;
-        }).setHeader("Presta");
+//        gridBibliotecaMaterial.addColumn(material -> {
+//            List<Presta> presta = material.getPresta();
+//            ///////////////////////////////////////
+//            String str = "";
+//            for (Presta valor : presta) {
+//                System.out.println(valor.getFecha_prestamo());
+//                str = valor.getFecha_prestamo().toString() + " ,";
+//                }
+//            ////////////////////////////////////////
+//            return presta == null ? "-" : str ;
+//        }).setHeader("Presta");
 
-        // gridBibliotecaMaterial.addColumn(presta -> {
-        //     Presta presta = presta ;
-        //     return grado == null ? "-" : grado.getNombre_grado();
-        // }).setHeader("Grado");
-
-
-        // Agregar columna personalizada para mostrar el nombre en lugar del ID
-        // gridBibliotecaMaterial.addColumn(estudiante -> {
-        //     Grado grado = estudiante.getGrado();
-        //     return grado == null ? "-" : grado.getNombre_grado();
-        // }).setHeader("Grado");
-
-        gridBibliotecaMaterial.getColumns().forEach(col -> col.setAutoWidth(true));
-        gridBibliotecaMaterial.setWidth("700px");
+//        gridBibliotecaMaterial.getColumns().forEach(col -> col.setAutoWidth(true));
+//        gridBibliotecaMaterial.setWidth("100%");
+//        gridBibliotecaMaterial.setHeight("100%");
+        //gridBibliotecaMaterial.setSizeFull();
         gridBibliotecaMaterial.addThemeVariants(GridVariant.LUMO_WRAP_CELL_CONTENT);
 
-        //gridBibliotecaMaterial.asSingleSelect().addValueChangeListener(event -> editEstudiante(event.getValue()));
     }
 
     private void actualizarListaDePrestamos(Long id_material) {
@@ -202,8 +204,8 @@ public class ListarPrestamos extends VerticalLayout {
         
         //Hacer este scroller global
         scroller.setContent(divLayout);
-        scroller.setWidth("500px");
-        scroller.setHeight("300px");
+        scroller.setWidth("90%");
+        scroller.setHeight("400px");
         scroller.setScrollDirection(Scroller.ScrollDirection.VERTICAL);
         scroller.getStyle()
         .set("border-bottom", "1px solid var(--lumo-contrast-20pct)")
@@ -221,7 +223,7 @@ public class ListarPrestamos extends VerticalLayout {
         // invocar el updateList(); cada vez que l caja de texto cambie de estado
         filterText.addValueChangeListener(
             //e -> actualizarListaDePrestamos()
-            e-> actualizarListadoLibros(0,5,filterText.getValue())
+            e-> actualizarListadoLibros(0,7,filterText.getValue())
             );
 
         // Button addContactButton = new Button("Add contact");
@@ -270,21 +272,28 @@ public class ListarPrestamos extends VerticalLayout {
         //Crear nuevo con la nueva query
     }
 
-    //TODO
-    //1.Crear una nueva funcion actualizarListadoLibros
-    //2.pegar el codigo para borrar las cartas
-    //3.hacer una nueva funcion que genere el layout con todas las cartas recibiendo una lista
-    //como parametro
-    //4.voy a agregar el elemento al scroller
-    // //Logica para borrar cartas
-    // List<Component> componentList = divLayout.getChildren().collect(Collectors.toList());
-    // String nombreClase = "card-item";
-    
-    // for (Component component : componentList) {
-        
-    //     if (component.getClassName().equals(nombreClase)) {
-    //         // Eliminar el componente del Div
-    //         divLayout.remove(component);
-    //     }
-    // }
+    public void GuardarPrestamo (){
+        btnGuardar.addClickListener( event -> {
+            //obtenerUsuario
+            String username = getCurrentUsername();
+            System.out.println("Nomrbe de usuario " + username);
+            //Obtener Miembro
+            // Obtener Libro A prestar
+            if(prestaServicio.registrarPrestamo(username,listaMaterialAPrestar)){
+                Notification.show("Guardado Exitoso");
+            }else{
+                Notification.show("No Guarda");
+            }
+            //Guardar Prestamo
+
+        });
+    }
+    private String getCurrentUsername() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated()) {
+            return authentication.getName();
+        }
+        return null;
+    }
+
 }
