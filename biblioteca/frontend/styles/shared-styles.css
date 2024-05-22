@@ -27,3 +27,24 @@ padding: 0 var(--lumo-space-m);
 font-size: 1em;
 margin: var(--lumo-space-m);
 }
+
+/* Estilos personalizados para el formulario */
+form-layout {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+vaadin-text-field, vaadin-password-field {
+    width: 100%;
+}
+
+vaadin-button {
+    background-color: #007bff;
+    color: white;
+}
+
+vaadin-button:hover {
+    background-color: #0056b3;
+}
